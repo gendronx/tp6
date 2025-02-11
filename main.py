@@ -21,12 +21,22 @@ class MyGame(arcade.Window):
 
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
-        self.caracter_list = arcade.SpriteList()
+        self.player_list = arcade.SpriteList()
         self.attack_list = arcade.SpriteList()
-        self.caracter_list.append()
 
+        compy = arcade.Sprite("assets/compy.png")
+        compy.center_x = 575
+        compy.center_y = 300
+        self.player_list.append(compy)
 
+        faceBeard = arcade.Sprite("assets/faceBeard.png")
+        faceBeard.center_x = 225
+        faceBeard.center_y = 300
+        faceBeard.scale = 0.2
+        self.player_list.append(faceBeard)
         arcade.set_background_color(arcade.color.AMAZON)
+
+
 
         # Si vous avez des listes de sprites, il faut les créer ici et les
         # initialiser à None.
@@ -48,7 +58,21 @@ class MyGame(arcade.Window):
 
         # Cette commande permet d'effacer l'écran avant de dessiner. Elle va dessiner l'arrière
         # plan selon la couleur spécifié avec la méthode "set_background_color".
-        arcade.start_render()
+        self.clear()
+        self.player_list.draw()
+
+        # player rectangle
+        arcade.draw.draw_lrbt_rectangle_outline(125, 175, 200, 250, arcade.color.GRAY)
+        arcade.draw.draw_lrbt_rectangle_outline(200, 250, 200, 250, arcade.color.GRAY)
+        arcade.draw.draw_lrbt_rectangle_outline(275, 325, 200, 250, arcade.color.GRAY)
+
+        # computer rectangle
+        arcade.draw.draw_lrbt_rectangle_outline(475, 525, 200, 250, arcade.color.GRAY)
+        arcade.draw.draw_lrbt_rectangle_outline(550, 600, 200, 250, arcade.color.GRAY)
+        arcade.draw.draw_lrbt_rectangle_outline(625, 675, 200, 250, arcade.color.GRAY)
+
+        # titre
+        arcade.draw_text("Roche, Papier, Ciseau", 300, 500, arcade.color.WHITE, 25, bold=True)
 
         # Invoquer la méthode "draw()" de vos sprites ici.
 
