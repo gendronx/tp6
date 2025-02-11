@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class GameState(Enum):
-    Not_Started = 0
-    Round_Active = 1
-    Round_Done = 2
-    Game_Over = 3
+    NOT_STARTED = 0
+    ROUND_ACTIVE = 1
+    ROUND_DONE = 2
+    GAME_OVER = 3
