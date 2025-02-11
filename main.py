@@ -67,9 +67,7 @@ class MyGame(arcade.Window):
         arcade.draw.draw_lrbt_rectangle_outline(275, 325, 200, 250, arcade.color.GRAY)
 
         # computer rectangle
-        arcade.draw.draw_lrbt_rectangle_outline(475, 525, 200, 250, arcade.color.GRAY)
         arcade.draw.draw_lrbt_rectangle_outline(550, 600, 200, 250, arcade.color.GRAY)
-        arcade.draw.draw_lrbt_rectangle_outline(625, 675, 200, 250, arcade.color.GRAY)
 
         # titre
         arcade.draw_text("Roche, Papier, Ciseau", 300, 500, arcade.color.WHITE, 25, bold=True)
