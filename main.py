@@ -6,6 +6,8 @@ Roche, Papier, Ciseaux
 
 import arcade
 
+from game_state import GameState
+
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Modèle de départ"
@@ -15,7 +17,7 @@ class MyGame(arcade.Window):
     """
     La classe principale de l'application
 
-    NOTE: Vous pouvez effacer les méthodes que vous n'avez pas besoin.
+    NOTE:Vous pouvez effacer les méthodes que vous n'avez pas besoin.
     Si vous en avez besoin, remplacer le mot clé "pass" par votre propre code.
     """
 
@@ -23,20 +25,20 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title)
         self.player_list = arcade.SpriteList()
         self.attack_list = arcade.SpriteList()
+        self.player_points = 0
+        self.computer_points = 0
 
         compy = arcade.Sprite("assets/compy.png")
         compy.center_x = 575
         compy.center_y = 300
         self.player_list.append(compy)
 
-        faceBeard = arcade.Sprite("assets/faceBeard.png")
-        faceBeard.center_x = 225
-        faceBeard.center_y = 300
-        faceBeard.scale = 0.2
-        self.player_list.append(faceBeard)
+        facebeard = arcade.Sprite("assets/faceBeard.png")
+        facebeard.center_x = 225
+        facebeard.center_y = 300
+        facebeard.scale = 0.2
+        self.player_list.append(facebeard)
         arcade.set_background_color(arcade.color.AMAZON)
-
-
 
         # Si vous avez des listes de sprites, il faut les créer ici et les
         # initialiser à None.
@@ -61,16 +63,22 @@ class MyGame(arcade.Window):
         self.clear()
         self.player_list.draw()
 
-        # player rectangle
+        # player attack
         arcade.draw.draw_lrbt_rectangle_outline(125, 175, 200, 250, arcade.color.GRAY)
         arcade.draw.draw_lrbt_rectangle_outline(200, 250, 200, 250, arcade.color.GRAY)
         arcade.draw.draw_lrbt_rectangle_outline(275, 325, 200, 250, arcade.color.GRAY)
 
-        # computer rectangle
+        # computer attack
         arcade.draw.draw_lrbt_rectangle_outline(550, 600, 200, 250, arcade.color.GRAY)
 
         # titre
-        arcade.draw_text("Roche, Papier, Ciseau", 300, 500, arcade.color.WHITE, 25, bold=True)
+        arcade.draw_text("Roche, Papier, Ciseau", 100, 500, arcade.color.BLACK, 50, bold=True)
+
+        # player score
+        arcade.draw_text(f"Nombre de points: {self.player_points}", 125, 150, arcade.color.BLACK, 20, bold=True)
+
+        # computer score
+        arcade.draw_text(f"Nombre de points: {self.computer_points}", 475, 150, arcade.color.BLACK, 20, bold=True)
 
         # Invoquer la méthode "draw()" de vos sprites ici.
 
