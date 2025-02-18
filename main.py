@@ -6,7 +6,9 @@ Roche, Papier, Ciseaux
 
 import arcade
 
-from game_state import GameState
+# from game_state import GameState
+
+from attack_animation import AttackAnimation, AttackType
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -28,17 +30,33 @@ class MyGame(arcade.Window):
         self.player_points = 0
         self.computer_points = 0
 
-        compy = arcade.Sprite("assets/compy.png")
-        compy.center_x = 575
-        compy.center_y = 300
-        self.player_list.append(compy)
+        self.compy = arcade.Sprite("assets/compy.png")
+        self.compy.center_x = 575
+        self.compy.center_y = 300
+        self.player_list.append(self.compy)
 
-        facebeard = arcade.Sprite("assets/faceBeard.png")
-        facebeard.center_x = 225
-        facebeard.center_y = 300
-        facebeard.scale = 0.2
-        self.player_list.append(facebeard)
+        self.facebeard = arcade.Sprite("assets/faceBeard.png")
+        self.facebeard.center_x = 225
+        self.facebeard.center_y = 300
+        self.facebeard.scale = 0.2
+        self.player_list.append(self.facebeard)
         arcade.set_background_color(arcade.color.AMAZON)
+
+        self.rock = AttackAnimation(AttackType.ROCK)
+        self.rock.center_x = 155
+        self.rock.center_y = 230
+        self.rock.scale = 0.4
+        self.attack_list.append(self.rock)
+        self.paper = AttackAnimation(AttackType.PAPER)
+        self.paper.center_x = 225
+        self.paper.center_y = 230
+        self.paper.scale = 0.4
+        self.attack_list.append(self.paper)
+        self.scissors = AttackAnimation(AttackType.SCISSORS)
+        self.scissors.center_x = 300
+        self.scissors.center_y = 230
+        self.scissors.scale = 0.4
+        self.attack_list.append(self.scissors)
 
         # Si vous avez des listes de sprites, il faut les créer ici et les
         # initialiser à None.
@@ -62,6 +80,7 @@ class MyGame(arcade.Window):
         # plan selon la couleur spécifié avec la méthode "set_background_color".
         self.clear()
         self.player_list.draw()
+        self.attack_list.draw()
 
         # player attack
         arcade.draw.draw_lrbt_rectangle_outline(125, 175, 200, 250, arcade.color.GRAY)
@@ -90,7 +109,9 @@ class MyGame(arcade.Window):
         Paramètre:
             - delta_time : le nombre de milliseconde depuis le dernier update.
         """
-        pass
+        self.rock.on_update(delta_time)
+        self.paper.on_update(delta_time)
+        self.scissors.on_update(delta_time)
 
     def on_key_press(self, key, key_modifiers):
         """
