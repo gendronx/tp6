@@ -5,9 +5,9 @@ Roche, Papier, Ciseaux
 """
 
 import arcade
+from random import randint
 
-# from game_state import GameState
-
+from game_state import GameState
 from attack_animation import AttackAnimation, AttackType
 
 SCREEN_WIDTH = 800
@@ -27,8 +27,20 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title)
         self.player_list = arcade.SpriteList()
         self.attack_list = arcade.SpriteList()
+        self.computer_rock_attack = arcade.SpriteList()
+        self.computer_paper_attack = arcade.SpriteList()
+        self.computer_scissors_attack = arcade.SpriteList()
         self.player_points = 0
         self.computer_points = 0
+        self.game_state = GameState.NOT_STARTED
+        self.player_attack = None
+        self.rock_attack = False
+        self.paper_attack = False
+        self.scissors_attack = False
+        self.computer_attack = None
+        self.flag = False
+        self.gagnant_round = ""
+        self.gagnant_partie = ""
 
         self.compy = arcade.Sprite("assets/compy.png")
         self.compy.center_x = 575
@@ -42,22 +54,47 @@ class MyGame(arcade.Window):
         self.player_list.append(self.facebeard)
         arcade.set_background_color(arcade.color.AMAZON)
 
+        # roche
         self.rock = AttackAnimation(AttackType.ROCK)
-        self.rock.center_x = 155
-        self.rock.center_y = 230
+        self.rock.center_x = 158
+        self.rock.center_y = 225
         self.rock.scale = 0.4
         self.attack_list.append(self.rock)
+
+        # papier
         self.paper = AttackAnimation(AttackType.PAPER)
-        self.paper.center_x = 225
-        self.paper.center_y = 230
+        self.paper.center_x = 228
+        self.paper.center_y = 225
         self.paper.scale = 0.4
         self.attack_list.append(self.paper)
+
+        # ciseau
         self.scissors = AttackAnimation(AttackType.SCISSORS)
-        self.scissors.center_x = 300
-        self.scissors.center_y = 230
+        self.scissors.center_x = 303
+        self.scissors.center_y = 225
         self.scissors.scale = 0.4
         self.attack_list.append(self.scissors)
 
+        # roche ordi
+        self.computer_rock = AttackAnimation(AttackType.ROCK)
+        self.computer_rock.center_x = 575
+        self.computer_rock.center_y = 225
+        self.computer_rock.scale = 0.4
+        self.computer_rock_attack.append(self.computer_rock)
+
+        # papier ordi
+        self.computer_paper = AttackAnimation(AttackType.PAPER)
+        self.computer_paper.center_x = 575
+        self.computer_paper.center_y = 225
+        self.computer_paper.scale = 0.4
+        self.computer_paper_attack.append(self.computer_paper)
+
+        # ciseau ordi
+        self.computer_scissors = AttackAnimation(AttackType.SCISSORS)
+        self.computer_scissors.center_x = 575
+        self.computer_scissors.center_y = 225
+        self.computer_scissors.scale = 0.4
+        self.computer_scissors_attack.append(self.computer_scissors)
         # Si vous avez des listes de sprites, il faut les créer ici et les
         # initialiser à None.
 
@@ -82,12 +119,12 @@ class MyGame(arcade.Window):
         self.player_list.draw()
         self.attack_list.draw()
 
-        # player attack
+        # player rectangle
         arcade.draw.draw_lrbt_rectangle_outline(125, 175, 200, 250, arcade.color.GRAY)
         arcade.draw.draw_lrbt_rectangle_outline(200, 250, 200, 250, arcade.color.GRAY)
         arcade.draw.draw_lrbt_rectangle_outline(275, 325, 200, 250, arcade.color.GRAY)
 
-        # computer attack
+        # computer rectangle
         arcade.draw.draw_lrbt_rectangle_outline(550, 600, 200, 250, arcade.color.GRAY)
 
         # titre
@@ -99,7 +136,26 @@ class MyGame(arcade.Window):
         # computer score
         arcade.draw_text(f"Nombre de points: {self.computer_points}", 475, 150, arcade.color.BLACK, 20, bold=True)
 
-        # Invoquer la méthode "draw()" de vos sprites ici.
+        # computer attack
+        if self.computer_attack == AttackType.ROCK:
+            self.computer_rock_attack.draw()
+
+        if self.computer_attack == AttackType.PAPER:
+            self.computer_paper_attack.draw()
+
+        if self.computer_attack == AttackType.SCISSORS:
+            self.computer_scissors_attack.draw()
+
+        if self.game_state == GameState.NOT_STARTED:
+            arcade.draw_text("Appuyer sur une image, puis espace pour faire une attaque", 75, 450, arcade.color.BLACK,
+                             20, bold=True)
+
+        if self.game_state == GameState.ROUND_DONE:
+            arcade.draw_text(f"{self.gagnant_round} a gagne le round", 200, 450, arcade.color.BLACK, 25, bold=True)
+
+        if self.game_state == GameState.GAME_OVER:
+            arcade.draw_text(f"La partie est terminer, {self.gagnant_partie} a gagne", 125, 450, arcade.color.BLACK, 25,
+                             bold=True)
 
     def on_update(self, delta_time):
         """
@@ -113,6 +169,69 @@ class MyGame(arcade.Window):
         self.paper.on_update(delta_time)
         self.scissors.on_update(delta_time)
 
+        if self.game_state == GameState.ROUND_ACTIVE and self.flag == True:
+            pc_attack = randint(0, 2)
+            if pc_attack == 0:
+                self.computer_attack = AttackType.ROCK
+            elif pc_attack == 1:
+                self.computer_attack = AttackType.PAPER
+            else:
+                self.computer_attack = AttackType.SCISSORS
+
+            # pointage
+            if self.player_attack == AttackType.ROCK:
+                if self.computer_attack == AttackType.ROCK:
+                    self.gagnant_round = "Egalite, personne n'"
+                    self.game_state = GameState.ROUND_DONE
+
+                elif self.computer_attack == AttackType.PAPER:
+                    self.gagnant_round = "L'ordinateur"
+                    self.computer_points += 1
+                    self.game_state = GameState.ROUND_DONE
+
+                elif self.computer_attack == AttackType.SCISSORS:
+                    self.gagnant_round = "Le joueur"
+                    self.player_points += 1
+                    self.game_state = GameState.ROUND_DONE
+
+            if self.player_attack == AttackType.PAPER:
+                if self.computer_attack == AttackType.ROCK:
+                    self.gagnant_round = "Le joueur"
+                    self.player_points += 1
+                    self.game_state = GameState.ROUND_DONE
+
+                elif self.computer_attack == AttackType.PAPER:
+                    self.gagnant_round = "Egalite, personne n'"
+                    self.game_state = GameState.ROUND_DONE
+
+                elif self.computer_attack == AttackType.SCISSORS:
+                    self.gagnant_round = "L'ordinateur"
+                    self.computer_points += 1
+                    self.game_state = GameState.ROUND_DONE
+
+            if self.player_attack == AttackType.SCISSORS:
+                if self.computer_attack == AttackType.ROCK:
+                    self.gagnant_round = "L'ordinateur"
+                    self.computer_points += 1
+                    self.game_state = GameState.ROUND_DONE
+
+                elif self.computer_attack == AttackType.PAPER:
+                    self.gagnant_round = "Le joueur"
+                    self.player_points += 1
+                    self.game_state = GameState.ROUND_DONE
+
+                elif self.computer_attack == AttackType.SCISSORS:
+                    self.gagnant_round = "Egalite, personne n'"
+                    self.game_state = GameState.ROUND_DONE
+
+        if self.player_points == 3:
+            self.gagnant_partie = "le joueur"
+            self.game_state = GameState.GAME_OVER
+
+        if self.computer_points == 3:
+            self.gagnant_partie = "l'ordinateur"
+            self.game_state = GameState.GAME_OVER
+
     def on_key_press(self, key, key_modifiers):
         """
         Cette méthode est invoquée à chaque fois que l'usager tape une touche
@@ -124,7 +243,19 @@ class MyGame(arcade.Window):
         Pour connaître la liste des touches possibles:
         http://arcade.academy/arcade.key.html
         """
-        pass
+        if key == arcade.key.SPACE and self.game_state == GameState.NOT_STARTED:
+            self.flag = True
+            self.game_state = GameState.ROUND_ACTIVE
+
+        if key == arcade.key.SPACE and self.game_state == GameState.ROUND_DONE:
+            self.flag = True
+            self.game_state = GameState.ROUND_ACTIVE
+
+        if key == arcade.key.SPACE and self.game_state == GameState.GAME_OVER:
+            self.flag = True
+            self.player_points = 0
+            self.computer_points = 0
+            self.game_state = GameState.ROUND_ACTIVE
 
     def on_key_release(self, key, key_modifiers):
         """
@@ -152,7 +283,14 @@ class MyGame(arcade.Window):
             - button: le bouton de la souris appuyé
             - key_modifiers: est-ce que l'usager appuie sur "shift" ou "ctrl" ?
         """
-        pass
+        if self.rock.collides_with_point((x, y)):
+            self.player_attack = AttackType.ROCK
+
+        if self.paper.collides_with_point((x, y)):
+            self.player_attack = AttackType.PAPER
+
+        if self.scissors.collides_with_point((x, y)):
+            self.player_attack = AttackType.SCISSORS
 
     def on_mouse_release(self, x, y, button, key_modifiers):
         """
