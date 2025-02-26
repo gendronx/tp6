@@ -27,6 +27,9 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title)
         self.player_list = arcade.SpriteList()
         self.attack_list = arcade.SpriteList()
+        self.player_rock_attack = arcade.SpriteList()
+        self.player_paper_attack = arcade.SpriteList()
+        self.player_scissors_attack = arcade.SpriteList()
         self.computer_rock_attack = arcade.SpriteList()
         self.computer_paper_attack = arcade.SpriteList()
         self.computer_scissors_attack = arcade.SpriteList()
@@ -54,42 +57,39 @@ class MyGame(arcade.Window):
         self.player_list.append(self.facebeard)
         arcade.set_background_color(arcade.color.AMAZON)
 
-        # roche
         self.rock = AttackAnimation(AttackType.ROCK)
         self.rock.center_x = 158
         self.rock.center_y = 225
         self.rock.scale = 0.4
         self.attack_list.append(self.rock)
+        self.player_rock_attack.append(self.rock)
 
-        # papier
         self.paper = AttackAnimation(AttackType.PAPER)
         self.paper.center_x = 228
         self.paper.center_y = 225
         self.paper.scale = 0.4
         self.attack_list.append(self.paper)
+        self.player_paper_attack.append(self.paper)
 
-        # ciseau
         self.scissors = AttackAnimation(AttackType.SCISSORS)
         self.scissors.center_x = 303
         self.scissors.center_y = 225
         self.scissors.scale = 0.4
         self.attack_list.append(self.scissors)
+        self.player_scissors_attack.append(self.scissors)
 
-        # roche ordi
         self.computer_rock = AttackAnimation(AttackType.ROCK)
         self.computer_rock.center_x = 575
         self.computer_rock.center_y = 225
         self.computer_rock.scale = 0.4
         self.computer_rock_attack.append(self.computer_rock)
 
-        # papier ordi
         self.computer_paper = AttackAnimation(AttackType.PAPER)
         self.computer_paper.center_x = 575
         self.computer_paper.center_y = 225
         self.computer_paper.scale = 0.4
         self.computer_paper_attack.append(self.computer_paper)
 
-        # ciseau ordi
         self.computer_scissors = AttackAnimation(AttackType.SCISSORS)
         self.computer_scissors.center_x = 575
         self.computer_scissors.center_y = 225
@@ -117,7 +117,6 @@ class MyGame(arcade.Window):
         # plan selon la couleur spécifié avec la méthode "set_background_color".
         self.clear()
         self.player_list.draw()
-        self.attack_list.draw()
 
         # player rectangle
         arcade.draw.draw_lrbt_rectangle_outline(125, 175, 200, 250, arcade.color.GRAY)
@@ -137,18 +136,34 @@ class MyGame(arcade.Window):
         arcade.draw_text(f"Nombre de points: {self.computer_points}", 475, 150, arcade.color.BLACK, 20, bold=True)
 
         # computer attack
-        if self.computer_attack == AttackType.ROCK:
-            self.computer_rock_attack.draw()
+        if self.game_state == GameState.ROUND_DONE:
+            if self.computer_attack == AttackType.ROCK:
+                self.computer_rock_attack.draw()
 
-        if self.computer_attack == AttackType.PAPER:
-            self.computer_paper_attack.draw()
+            if self.computer_attack == AttackType.PAPER:
+                self.computer_paper_attack.draw()
 
-        if self.computer_attack == AttackType.SCISSORS:
-            self.computer_scissors_attack.draw()
+            if self.computer_attack == AttackType.SCISSORS:
+                self.computer_scissors_attack.draw()
+
+        # player attack
+        if self.player_attack == AttackType.ROCK:
+            self.player_rock_attack.draw()
+
+        elif self.player_attack == AttackType.PAPER:
+            self.player_paper_attack.draw()
+
+        elif self.player_attack == AttackType.SCISSORS:
+            self.player_scissors_attack.draw()
+
+        else:
+            self.attack_list.draw()
 
         if self.game_state == GameState.NOT_STARTED:
-            arcade.draw_text("Appuyer sur une image, puis espace pour faire une attaque", 75, 450, arcade.color.BLACK,
-                             20, bold=True)
+            arcade.draw_text("Appuyer sur espace pour commencer", 200, 450, arcade.color.BLACK, 20, bold=True)
+
+        if self.game_state == GameState.ROUND_ACTIVE:
+            arcade.draw_text("Appuyer sur Roche, Papier ou Ciseau", 200, 450, arcade.color.BLACK, 20, bold=True)
 
         if self.game_state == GameState.ROUND_DONE:
             arcade.draw_text(f"{self.gagnant_round} a gagne le round", 200, 450, arcade.color.BLACK, 25, bold=True)
@@ -169,7 +184,7 @@ class MyGame(arcade.Window):
         self.paper.on_update(delta_time)
         self.scissors.on_update(delta_time)
 
-        if self.game_state == GameState.ROUND_ACTIVE and self.flag == True:
+        if self.game_state == GameState.ROUND_ACTIVE and self.flag:
             pc_attack = randint(0, 2)
             if pc_attack == 0:
                 self.computer_attack = AttackType.ROCK
@@ -244,36 +259,17 @@ class MyGame(arcade.Window):
         http://arcade.academy/arcade.key.html
         """
         if key == arcade.key.SPACE and self.game_state == GameState.NOT_STARTED:
-            self.flag = True
             self.game_state = GameState.ROUND_ACTIVE
 
         if key == arcade.key.SPACE and self.game_state == GameState.ROUND_DONE:
-            self.flag = True
+            self.flag = False
             self.game_state = GameState.ROUND_ACTIVE
 
         if key == arcade.key.SPACE and self.game_state == GameState.GAME_OVER:
-            self.flag = True
+            self.flag = False
             self.player_points = 0
             self.computer_points = 0
             self.game_state = GameState.ROUND_ACTIVE
-
-    def on_key_release(self, key, key_modifiers):
-        """
-        Méthode invoquée à chaque fois que l'usager enlève son doigt d'une touche.
-        Paramètres:
-            - key: la touche relâchée
-            - key_modifiers: est-ce que l'usager appuie sur "shift" ou "ctrl" ?
-        """
-        pass
-
-    def on_mouse_motion(self, x, y, delta_x, delta_y):
-        """
-        Méthode invoquée lorsque le curseur de la souris se déplace dans la fenêtre.
-        Paramètres:
-            - x, y: les coordonnées de l'emplacement actuel de la sourir
-            - delta_X, delta_y: le changement (x et y) depuis la dernière fois que la méthode a été invoqué.
-        """
-        pass
 
     def on_mouse_press(self, x, y, button, key_modifiers):
         """
@@ -283,24 +279,18 @@ class MyGame(arcade.Window):
             - button: le bouton de la souris appuyé
             - key_modifiers: est-ce que l'usager appuie sur "shift" ou "ctrl" ?
         """
-        if self.rock.collides_with_point((x, y)):
-            self.player_attack = AttackType.ROCK
+        if self.game_state != GameState.NOT_STARTED:
+            if self.rock.collides_with_point((x, y)):
+                self.player_attack = AttackType.ROCK
+                self.flag = True
 
-        if self.paper.collides_with_point((x, y)):
-            self.player_attack = AttackType.PAPER
+            if self.paper.collides_with_point((x, y)):
+                self.player_attack = AttackType.PAPER
+                self.flag = True
 
-        if self.scissors.collides_with_point((x, y)):
-            self.player_attack = AttackType.SCISSORS
-
-    def on_mouse_release(self, x, y, button, key_modifiers):
-        """
-        Méthode invoquée lorsque l'usager relâche le bouton cliqué de la souris.
-        Paramètres:
-            - x, y: coordonnées où le bouton a été relâché
-            - button: le bouton de la souris relâché
-            - key_modifiers: est-ce que l'usager appuie sur "shift" ou "ctrl" ?
-        """
-        pass
+            if self.scissors.collides_with_point((x, y)):
+                self.player_attack = AttackType.SCISSORS
+                self.flag = True
 
 
 def main():
