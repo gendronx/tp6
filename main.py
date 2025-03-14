@@ -136,7 +136,7 @@ class MyGame(arcade.Window):
         arcade.draw_text(f"Nombre de points: {self.computer_points}", 475, 150, arcade.color.BLACK, 20, bold=True)
 
         # computer attack
-        if self.game_state == GameState.ROUND_DONE:
+        if self.game_state == GameState.ROUND_DONE or self.computer_points == 3 or self.player_points == 3:
             if self.computer_attack == AttackType.ROCK:
                 self.computer_rock_attack.draw()
 
@@ -157,6 +157,9 @@ class MyGame(arcade.Window):
             self.player_scissors_attack.draw()
 
         else:
+            self.attack_list.draw()
+
+        if self.game_state == GameState.ROUND_ACTIVE:
             self.attack_list.draw()
 
         if self.game_state == GameState.NOT_STARTED:
@@ -279,7 +282,7 @@ class MyGame(arcade.Window):
             - button: le bouton de la souris appuyé
             - key_modifiers: est-ce que l'usager appuie sur "shift" ou "ctrl" ?
         """
-        if self.game_state != GameState.NOT_STARTED:
+        if self.game_state == GameState.ROUND_ACTIVE:
             if self.rock.collides_with_point((x, y)):
                 self.player_attack = AttackType.ROCK
                 self.flag = True
